@@ -1,4 +1,5 @@
 import requests, os, json
+from tqdm import tqdm
 from pprint import pprint as pp
 
 
@@ -101,7 +102,7 @@ def backup(user_id, token):
     yandex_client.create_folder()
     path = 'C:\\Users\Steve\Desktop\courseworks\coursework_oop_api\PhotosLibery'
     dir_list = os.listdir(path)
-    for photo in dir_list:
+    for photo in tqdm(dir_list, desc='Upload files'):
         yandex_client.upload_photo(yandex_client.get_url(photo), photo)
         result.append({'file_name': photo, 'size': 'z'})
     with open('result.json', 'w') as f:
@@ -111,7 +112,8 @@ def backup(user_id, token):
 
 
 TOKEN = 'y0_AgAAAAA3TrhxAADLWwAAAADssFkYbT5QEHQIRreFqBdntuVlj4TNIRc'
-print(backup(440529550, TOKEN))
+for i in tqdm(range(1), desc='Loading'):
+    print(backup(440529550, TOKEN))
 
 
 
