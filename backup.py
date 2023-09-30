@@ -1,6 +1,44 @@
 import requests, os, json
 from tqdm import tqdm
-from pprint import pprint as pp
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtGui import QIcon
+from design import Ui_MainWindow
+from time import sleep
+
+# Работает кривовато, но я пытался :)
+class Ui(QtWidgets.QMainWindow):
+    def __init__(self):
+        super(Ui, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.backup = backup
+        self.setWindowIcon(QIcon('web.png'))
+        self.setWindowTitle('BackUP+')
+
+        self.ui.label_3.setText('')
+        self.ui.pushButton.clicked.connect(self.push_b)
+
+    def push_b(self):
+        self.progres_start()
+        self.start_backup()
+        self.progres_bar()
+        self.progres_end()
+
+    def start_backup(self):
+        token = self.ui.lineEdit.text()
+        vk_id = self.ui.lineEdit_2.text()
+        self.backup(token, vk_id)
+
+    def progres_start(self):
+        self.ui.label_3.setText("Загрузка")
+
+    def progres_end(self):
+        self.ui.label_3.setText("Завершено")
+
+    def progres_bar(self):
+        for i in range(101):
+            sleep(0.2)
+            self.ui.progressBar.setValue(i)
 
 
 class VK:
@@ -94,15 +132,21 @@ class YandexDisk:
         return response
 
 
-def backup(user_id, token):
+TOKEN = 'y0_AgAAAAA3TrhxAADLWwAAAADssFkYbT5QEHQIRreFqBdntuVlj4TNIRc'
+
+
+# print(backup(440529550, TOKEN))
+
+def backup(token, vk_id):
     result = []
-    vk_client = VK(user_id)
+    vk_client = VK(vk_id)
     yandex_client = YandexDisk(token, vk_client.get_information_vk_photos())
     yandex_client.get_photos_on_directory()
     yandex_client.create_folder()
     path = 'C:\\Users\Steve\Desktop\courseworks\coursework_oop_api\PhotosLibery'
     dir_list = os.listdir(path)
-    for photo in tqdm(dir_list, desc='Upload files'):
+    for photo in tqdm(dir_list, ncols=85,
+                      position=0, unit=' photos', desc='Loading'):
         yandex_client.upload_photo(yandex_client.get_url(photo), photo)
         result.append({'file_name': photo, 'size': 'z'})
     with open('result.json', 'w') as f:
@@ -110,12 +154,10 @@ def backup(user_id, token):
     return len(vk_client.get_information_vk_photos())
 
 
+if __name__ == '__main__':
+    import sys
 
-TOKEN = 'y0_AgAAAAA3TrhxAADLWwAAAADssFkYbT5QEHQIRreFqBdntuVlj4TNIRc'
-for i in tqdm(range(1), desc='Loading'):
-    print(backup(440529550, TOKEN))
-
-
-
-
-
+    app = QtWidgets.QApplication([])
+    w = Ui()
+    w.show()
+    sys.exit(app.exec())
